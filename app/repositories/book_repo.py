@@ -32,7 +32,7 @@ def _parse_calibre_date(value: str | None) -> datetime | None:
         return None
 
 
-# ─── Helpers ──────────────────────────────────────────────────────────────────
+# ─── Helpers — fiche détaillée (1 livre) ──────────────────────────────────────
 
 def _get_authors(conn: sqlite3.Connection, book_id: int) -> list[Author]:
     rows = conn.execute(
@@ -46,14 +46,6 @@ def _get_authors(conn: sqlite3.Connection, book_id: int) -> list[Author]:
         (book_id,),
     ).fetchall()
     return [Author(id=r["id"], name=r["name"], sort=r["sort"]) for r in rows]
-
-
-def _get_formats_list(conn: sqlite3.Connection, book_id: int) -> list[str]:
-    rows = conn.execute(
-        "SELECT format FROM data WHERE book = ? ORDER BY format",
-        (book_id,),
-    ).fetchall()
-    return [r["format"] for r in rows]
 
 
 def _get_formats_detail(conn: sqlite3.Connection, book_id: int) -> list[BookFormat]:
@@ -82,18 +74,96 @@ def _get_series(conn: sqlite3.Connection, book_id: int) -> Series | None:
     return None
 
 
-def _row_to_list_item(conn: sqlite3.Connection, row: sqlite3.Row) -> BookListItem:
-    series = _get_series(conn, row["id"])
-    return BookListItem(
-        id=row["id"],
-        title=row["title"],
-        sort=row["sort"],
-        authors=_get_authors(conn, row["id"]),
-        has_cover=bool(row["has_cover"]),
-        formats=_get_formats_list(conn, row["id"]),
-        series=series,
-        series_index=row["series_index"] if series else None,
-    )
+# ─── Helpers — listes (N livres, sans N+1) ────────────────────────────────────
+
+def _get_authors_batch(
+    conn: sqlite3.Connection, book_ids: list[int]
+) -> dict[int, list[Author]]:
+    """Charge tous les auteurs pour une liste de livres en une seule requête."""
+    result: dict[int, list[Author]] = {bid: [] for bid in book_ids}
+    if not book_ids:
+        return result
+    ph = ",".join("?" * len(book_ids))
+    rows = conn.execute(
+        f"""
+        SELECT bal.book, a.id, a.name, a.sort
+        FROM authors a
+        JOIN books_authors_link bal ON bal.author = a.id
+        WHERE bal.book IN ({ph})
+        ORDER BY a.sort
+        """,
+        book_ids,
+    ).fetchall()
+    for r in rows:
+        result[r["book"]].append(Author(id=r["id"], name=r["name"], sort=r["sort"]))
+    return result
+
+
+def _get_formats_list_batch(
+    conn: sqlite3.Connection, book_ids: list[int]
+) -> dict[int, list[str]]:
+    """Charge tous les formats (noms) pour une liste de livres en une seule requête."""
+    result: dict[int, list[str]] = {bid: [] for bid in book_ids}
+    if not book_ids:
+        return result
+    ph = ",".join("?" * len(book_ids))
+    rows = conn.execute(
+        f"SELECT book, format FROM data WHERE book IN ({ph}) ORDER BY format",
+        book_ids,
+    ).fetchall()
+    for r in rows:
+        result[r["book"]].append(r["format"])
+    return result
+
+
+def _get_series_batch(
+    conn: sqlite3.Connection, book_ids: list[int]
+) -> dict[int, Series]:
+    """Charge toutes les séries pour une liste de livres en une seule requête."""
+    if not book_ids:
+        return {}
+    ph = ",".join("?" * len(book_ids))
+    rows = conn.execute(
+        f"""
+        SELECT bsl.book, s.id, s.name, s.sort
+        FROM series s
+        JOIN books_series_link bsl ON bsl.series = s.id
+        WHERE bsl.book IN ({ph})
+        """,
+        book_ids,
+    ).fetchall()
+    return {r["book"]: Series(id=r["id"], name=r["name"], sort=r["sort"]) for r in rows}
+
+
+def _rows_to_list_items(
+    conn: sqlite3.Connection, rows: list[sqlite3.Row]
+) -> list[BookListItem]:
+    """
+    Convertit une liste de lignes books en BookListItem.
+    Utilise 3 requêtes batch (IN) au lieu de 3×N requêtes individuelles.
+    """
+    if not rows:
+        return []
+    book_ids = [r["id"] for r in rows]
+    authors_map  = _get_authors_batch(conn, book_ids)
+    formats_map  = _get_formats_list_batch(conn, book_ids)
+    series_map   = _get_series_batch(conn, book_ids)
+
+    items = []
+    for row in rows:
+        bid    = row["id"]
+        series = series_map.get(bid)
+        items.append(BookListItem(
+            id=bid,
+            title=row["title"],
+            sort=row["sort"],
+            authors=authors_map.get(bid, []),
+            has_cover=bool(row["has_cover"]),
+            formats=formats_map.get(bid, []),
+            series=series,
+            series_index=row["series_index"] if series else None,
+        ))
+    return items
 
 
 # ─── Requêtes principales ─────────────────────────────────────────────────────
@@ -114,9 +184,8 @@ def get_books_paginated(
         (per_page, offset),
     ).fetchall()
 
-    items = [_row_to_list_item(conn, r) for r in rows]
     return Page(
-        items=items,
+        items=_rows_to_list_items(conn, rows),
         meta=PaginationMeta(page=page, per_page=per_page, total=total),
     )
 
@@ -218,8 +287,6 @@ def get_book_file_path(conn: sqlite3.Connection, book_id: int, fmt: str) -> Path
         return None
 
     # Construire le chemin absolu
-    # Les fichiers KEPUB dans Calibre ont une double extension : <nom>.kepub.epub
-    # Les autres formats : <nom>.<format>
     library = settings.calibre_library_path
     base = library / book_row["path"] / data_row["name"]
     if fmt_upper == "KEPUB":
@@ -290,9 +357,8 @@ def search_books(
         (like, like, per_page, offset),
     ).fetchall()
 
-    items = [_row_to_list_item(conn, r) for r in rows]
     return Page(
-        items=items,
+        items=_rows_to_list_items(conn, rows),
         meta=PaginationMeta(page=page, per_page=per_page, total=total),
     )
 
@@ -320,9 +386,8 @@ def get_books_by_author(
         (author_id, per_page, offset),
     ).fetchall()
 
-    items = [_row_to_list_item(conn, r) for r in rows]
     return Page(
-        items=items,
+        items=_rows_to_list_items(conn, rows),
         meta=PaginationMeta(page=page, per_page=per_page, total=total),
     )
 
@@ -350,9 +415,8 @@ def get_books_by_tag(
         (tag_id, per_page, offset),
     ).fetchall()
 
-    items = [_row_to_list_item(conn, r) for r in rows]
     return Page(
-        items=items,
+        items=_rows_to_list_items(conn, rows),
         meta=PaginationMeta(page=page, per_page=per_page, total=total),
     )
 
@@ -372,4 +436,4 @@ def get_books_by_series(
         """,
         (series_id,),
     ).fetchall()
-    return [_row_to_list_item(conn, r) for r in rows]
+    return _rows_to_list_items(conn, rows)
