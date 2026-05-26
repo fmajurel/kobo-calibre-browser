@@ -26,7 +26,6 @@ class BookListItem(BaseModel):
 class BookDetail(BookListItem):
     pubdate: datetime | None = None
     timestamp: datetime | None = None
-    isbn: str | None = None
     tags: list[Tag] = []
     comment: str | None = None       # HTML depuis Calibre
     rating: int | None = None        # 0–10 en base, affiché /2 = nb étoiles

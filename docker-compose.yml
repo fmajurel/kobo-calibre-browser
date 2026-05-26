@@ -20,6 +20,8 @@ services:
       - CALIBRE_LIBRARY_PATH=/calibre-library
       - ITEMS_PER_PAGE=${ITEMS_PER_PAGE:-20}
       - LOG_LEVEL=${LOG_LEVEL:-info}
+      - APP_PASSWORD=${APP_PASSWORD}
+      - SESSION_SECRET=${SESSION_SECRET:-change-me-in-production}
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]

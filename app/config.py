@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     # Niveau de log
     log_level: str = "info"
 
+    # Authentification in-app
+    app_password: str = ""          # Obligatoire — APP_PASSWORD dans .env
+    session_secret: str = "change-me-in-production"  # SESSION_SECRET dans .env
+
     @property
     def calibre_db_path(self) -> Path:
         return self.calibre_library_path / "metadata.db"

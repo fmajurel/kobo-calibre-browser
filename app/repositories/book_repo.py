@@ -3,6 +3,7 @@ Requêtes SQL sur la base Calibre pour les livres.
 Toutes les requêtes sont en lecture seule.
 """
 import sqlite3
+from datetime import datetime
 from pathlib import Path
 
 from config import settings
@@ -11,6 +12,24 @@ from models.book import BookDetail, BookFormat, BookListItem
 from models.pagination import Page, PaginationMeta
 from models.series import Series
 from models.tag import Tag
+
+
+def _parse_calibre_date(value: str | None) -> datetime | None:
+    """
+    Parse une date Calibre (ISO 8601) en datetime.
+    Retourne None pour les valeurs manquantes ou les dates sentinelles
+    (ex: "0101-01-01 00:00:00+00:00" = "pas de date connue" dans Calibre).
+    """
+    if not value:
+        return None
+    try:
+        dt = datetime.fromisoformat(str(value))
+        # Calibre utilise l'an 101 comme valeur sentinelle "pas de date"
+        if dt.year < 1000:
+            return None
+        return dt
+    except (ValueError, TypeError):
+        return None
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -106,7 +125,7 @@ def get_book_by_id(conn: sqlite3.Connection, book_id: int) -> BookDetail | None:
     row = conn.execute(
         """
         SELECT id, title, sort, has_cover, series_index,
-               pubdate, timestamp, isbn
+               pubdate, timestamp
         FROM books
         WHERE id = ?
         """,
@@ -169,9 +188,8 @@ def get_book_by_id(conn: sqlite3.Connection, book_id: int) -> BookDetail | None:
         formats=_get_formats_detail(conn, book_id),
         series=series,
         series_index=row["series_index"] if series else None,
-        pubdate=row["pubdate"],
-        timestamp=row["timestamp"],
-        isbn=row["isbn"],
+        pubdate=_parse_calibre_date(row["pubdate"]),
+        timestamp=_parse_calibre_date(row["timestamp"]),
         tags=tags,
         comment=comment,
         rating=rating,
