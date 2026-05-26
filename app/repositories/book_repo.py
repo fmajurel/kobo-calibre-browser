@@ -218,10 +218,14 @@ def get_book_file_path(conn: sqlite3.Connection, book_id: int, fmt: str) -> Path
         return None
 
     # Construire le chemin absolu
+    # Les fichiers KEPUB dans Calibre ont une double extension : <nom>.kepub.epub
+    # Les autres formats : <nom>.<format>
     library = settings.calibre_library_path
-    file_path = (library / book_row["path"] / data_row["name"]).with_suffix(
-        f".{fmt_upper.lower()}"
-    )
+    base = library / book_row["path"] / data_row["name"]
+    if fmt_upper == "KEPUB":
+        file_path = base.with_suffix(".kepub.epub")
+    else:
+        file_path = base.with_suffix(f".{fmt_upper.lower()}")
 
     # Vérification anti path traversal
     try:

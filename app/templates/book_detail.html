@@ -4,12 +4,6 @@
 {% block content %}
 <article class="book-detail">
 
-  <div class="book-detail-cover">
-    {% if book.has_cover %}
-      <img src="/covers/{{ book.id }}" alt="Couverture de {{ book.title }}" width="240">
-    {% endif %}
-  </div>
-
   <div class="book-detail-meta">
     <h1>{{ book.title }}</h1>
 
@@ -52,13 +46,6 @@
     </dl>
   </div>
 
-  {% if book.comment %}
-  <div class="book-comment">
-    <h2>Résumé</h2>
-    <div class="comment-text">{{ book.comment | safe }}</div>
-  </div>
-  {% endif %}
-
   {% if book.formats %}
   <div class="download-section">
     <h2>Télécharger</h2>
@@ -73,6 +60,19 @@
       </a>
       {% endfor %}
     </div>
+  </div>
+  {% endif %}
+
+  <div class="book-detail-cover">
+    {% if book.has_cover %}
+      <img src="/covers/{{ book.id }}" alt="Couverture de {{ book.title }}" width="240">
+    {% endif %}
+  </div>
+
+  {% if book.comment %}
+  <div class="book-comment">
+    <h2>Résumé</h2>
+    <div class="comment-text">{{ book.comment | safe }}</div>
   </div>
   {% endif %}
 

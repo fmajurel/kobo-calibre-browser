@@ -7,10 +7,11 @@ from repositories import book_repo
 router = APIRouter()
 
 # Formats autorisés (en minuscules)
-ALLOWED_FORMATS = {"epub", "mobi", "azw3", "pdf", "txt", "rtf", "lit", "lrf"}
+ALLOWED_FORMATS = {"epub", "mobi", "azw3", "pdf", "txt", "rtf", "lit", "lrf", "kepub"}
 
 _MIME_TYPES = {
     "epub": "application/epub+zip",
+    "kepub": "application/epub+zip",   # KEPUB = epub Kobo, même type MIME
     "mobi": "application/x-mobipocket-ebook",
     "azw3": "application/vnd.amazon.ebook",
     "pdf": "application/pdf",
@@ -46,7 +47,8 @@ def download(book_id: int, fmt: str):
 
     # Nom de fichier propre pour le téléchargement
     safe_title = "".join(c for c in book_row["title"] if c.isalnum() or c in " -_")[:60]
-    filename = f"{safe_title}.{fmt_lower}"
+    # Les fichiers KEPUB ont une double extension (.kepub.epub) reconnue par la Kobo
+    filename = f"{safe_title}.kepub.epub" if fmt_lower == "kepub" else f"{safe_title}.{fmt_lower}"
 
     return FileResponse(
         file_path,
