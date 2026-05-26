@@ -33,7 +33,7 @@ services:
     labels:
       # --- Traefik ---
       - "traefik.enable=true"
-      - "traefik.http.routers.kobo-calibre.rule=Host(`${KOBO_DOMAIN:-kobo.majurel.fr}`)"
+      - "traefik.http.routers.kobo-calibre.rule=Host(`${KOBO_DOMAIN:-kobo.domain.fr}`)"
       - "traefik.http.routers.kobo-calibre.entrypoints=websecure"
       - "traefik.http.routers.kobo-calibre.tls=true"
       - "traefik.http.routers.kobo-calibre.tls.certresolver=${CERT_RESOLVER:-cloudflare}"

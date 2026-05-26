@@ -2,7 +2,7 @@
 
 Interface web de navigation dans une bibliothèque Calibre, optimisée pour la **Kobo Clara 2E** (écran e-ink 6", 1072×1448px). Déployé via Docker sur un serveur **Unraid**, derrière **Traefik** et **Authelia**.
 
-> **Contexte** : Ce projet coexiste avec [calibre-web](https://calibre.majurel.fr) (Kobo Sync actif) déjà déployé sur le même serveur. `kobo-calibre-browser` est une interface de **navigation et téléchargement** légère, optimisée pour l'écran e-ink, distincte de calibre-web.
+> **Contexte** : Ce projet coexiste avec [calibre-web](https://calibre.domain.fr) (Kobo Sync actif) déjà déployé sur le même serveur. `kobo-calibre-browser` est une interface de **navigation et téléchargement** légère, optimisée pour l'écran e-ink, distincte de calibre-web.
 
 ## Architecture
 
@@ -18,7 +18,7 @@ Interface web de navigation dans une bibliothèque Calibre, optimisée pour la *
                               Traefik (HTTPS)
                               Authelia (auth)
                                     │
-                    https://kobo.majurel.fr
+                    https://kobo.domain.fr
                                     │
                        [Kobo Clara 2E — navigateur]
 ```
@@ -51,7 +51,7 @@ Variables à renseigner :
 | Variable | Description | Valeur sur ce serveur |
 |----------|-------------|-----------------------|
 | `CALIBRE_LIBRARY_PATH` | Chemin absolu de la bibliothèque Calibre sur l'hôte | `/mnt/user/data/media/ebooks/calibre_library` |
-| `KOBO_DOMAIN` | Sous-domaine public | `kobo.majurel.fr` |
+| `KOBO_DOMAIN` | Sous-domaine public | `kobo.domain.fr` |
 | `TRAEFIK_NETWORK` | Nom du réseau Docker Traefik | `docker_network` |
 | `CERT_RESOLVER` | Résolveur TLS dans Traefik | `cloudflare` |
 | `AUTHELIA_MIDDLEWARE` | Middleware Authelia | `authelia@file` |
@@ -80,7 +80,7 @@ Dans la configuration Authelia (`/mnt/user/appdata/authelia/configuration.yml`),
 ```yaml
 access_control:
   rules:
-    - domain: kobo.majurel.fr
+    - domain: kobo.domain.fr
       policy: one_factor   # ou two_factor selon ta préférence
 ```
 
@@ -90,7 +90,7 @@ access_control:
 
 1. Connecter la Kobo au WiFi
 2. Ouvrir le navigateur intégré (Menu → Navigateur web)
-3. Naviguer vers `https://kobo.majurel.fr`
+3. Naviguer vers `https://kobo.domain.fr`
 4. S'authentifier via Authelia (une seule fois, cookie valide selon ta config)
 5. Parcourir la bibliothèque et télécharger des livres
 
@@ -108,7 +108,7 @@ Ce container lit la bibliothèque Calibre **en lecture seule** — il ne modifie
 
 | | `kobo-calibre-browser` | calibre-web |
 |---|---|---|
-| URL | `kobo.majurel.fr` | `calibre.majurel.fr` |
+| URL | `kobo.domain.fr` | `calibre.domain.fr` |
 | Accès DB | SQLite read-only | Lecture/écriture |
 | Kobo Sync | Non | Oui (OPDS) |
 | UI | E-ink optimisé | Interface web complète |

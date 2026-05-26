@@ -352,10 +352,10 @@ two_col_table(doc,
     [
         ["Unraid + Docker",       "Serveur hôte, orchestration des containers",      "Local / SSH"],
         ["Calibre",               "Gestionnaire de bibliothèque ebook",               "GUI desktop ou Web"],
-        ["kobo-calibre-browser",  "Application web de navigation (ce projet)",        "https://kobo.majurel.fr"],
-        ["calibre-web",           "Interface Calibre existante (Kobo Sync actif)",    "https://calibre.majurel.fr"],
+        ["kobo-calibre-browser",  "Application web de navigation (ce projet)",        "https://kobo.domain.fr"],
+        ["calibre-web",           "Interface Calibre existante (Kobo Sync actif)",    "https://calibre.domain.fr"],
         ["Traefik",               "Reverse-proxy HTTPS, routage des sous-domaines",   "Tableau de bord Traefik"],
-        ["Authelia",              "Authentification SSO (2FA, One-Time PIN)",          "https://auth.majurel.fr"],
+        ["Authelia",              "Authentification SSO (2FA, One-Time PIN)",          "https://auth.domain.fr"],
         ["Kobo Clara 2E",         "Liseuse e-ink — navigateur intégré",               "WiFi / 4G"],
     ],
     col_widths_cm=[4.5, 8.0, 4.5]
@@ -435,7 +435,7 @@ body(doc, "Le schéma suivant décrit le flux réseau entre la Kobo et la biblio
 code_block(doc, [
     "Kobo Clara 2E (navigateur)                  Serveur Unraid (réseau local / Internet)",
     "       │                                            │",
-    "       │  HTTPS  https://kobo.majurel.fr           │",
+    "       │  HTTPS  https://kobo.domain.fr           │",
     "       ├──────────────────────────────────────────►│  [Traefik :443]",
     "       │                                            │       │ vérifie middleware",
     "       │                                            │  [Authelia]",
@@ -456,7 +456,7 @@ page_break(doc)
 # ── 2. BIBLIOTHÈQUE CALIBRE ──────────────────────────────────────────────────
 heading1(doc, "2. Préparer la bibliothèque Calibre", 2, "calibre")
 
-body(doc, "calibre-web est déjà déployé sur https://calibre.majurel.fr avec le Kobo Sync actif. "
+body(doc, "calibre-web est déjà déployé sur https://calibre.domain.fr avec le Kobo Sync actif. "
      "kobo-calibre-browser lit la même bibliothèque en lecture seule — aucune action "
      "n'est nécessaire sur calibre-web, les deux services coexistent sans conflit.")
 
@@ -520,7 +520,7 @@ code_block(doc, [
     "CALIBRE_LIBRARY_PATH=/mnt/user/data/media/ebooks/calibre_library",
     "",
     "# Sous-domaine public de l'application",
-    "KOBO_DOMAIN=kobo.majurel.fr",
+    "KOBO_DOMAIN=kobo.domain.fr",
     "",
     "# Réseau Docker externe de Traefik (vérifier avec : docker network ls)",
     "TRAEFIK_NETWORK=docker_network",
@@ -539,7 +539,7 @@ two_col_table(doc,
     ["Variable", "Description", "Valeur par défaut"],
     [
         ["CALIBRE_LIBRARY_PATH", "Chemin absolu de la bibliothèque Calibre sur l'hôte Unraid",  "à remplir obligatoirement"],
-        ["KOBO_DOMAIN",          "Sous-domaine public HTTPS de l'application",                   "kobo.majurel.fr"],
+        ["KOBO_DOMAIN",          "Sous-domaine public HTTPS de l'application",                   "kobo.domain.fr"],
         ["TRAEFIK_NETWORK",      "Nom du réseau Docker externe de Traefik",                      "docker_network"],
         ["CERT_RESOLVER",        "Nom du résolveur TLS déclaré dans Traefik",                    "cloudflare"],
         ["AUTHELIA_MIDDLEWARE",  "Nom du middleware Authelia dans Traefik",                       "authelia@file"],
@@ -591,7 +591,7 @@ body(doc, "Ces labels sont déjà présents dans le fichier fourni :")
 code_block(doc, [
     "labels:",
     '  - "traefik.enable=true"',
-    '  - "traefik.http.routers.kobo-calibre.rule=Host(`kobo.majurel.fr`)"',
+    '  - "traefik.http.routers.kobo-calibre.rule=Host(`kobo.domain.fr`)"',
     '  - "traefik.http.routers.kobo-calibre.entrypoints=websecure"',
     '  - "traefik.http.routers.kobo-calibre.tls=true"',
     '  - "traefik.http.routers.kobo-calibre.tls.certresolver=cloudflare"',
@@ -615,7 +615,7 @@ code_block(doc, [
 heading2(doc, "Vérification du routage Traefik")
 body(doc, "Dans le tableau de bord Traefik, vérifier que le router 'kobo-calibre' apparaît "
      "avec le statut 'Enabled' et un certificat TLS valide :")
-bullet(doc, "Accéder au tableau de bord Traefik (ex: https://traefik.majurel.fr)")
+bullet(doc, "Accéder au tableau de bord Traefik (ex: https://traefik.domain.fr)")
 bullet(doc, "Aller dans HTTP → Routers")
 bullet(doc, "Vérifier que 'kobo-calibre@docker' est listé et vert")
 bullet(doc, "Vérifier que le certificat TLS Let's Encrypt est valide")
@@ -644,7 +644,7 @@ code_block(doc, [
     "    # ... règles existantes ...",
     "",
     "    # Règle pour Kobo Calibre Browser",
-    "    - domain: kobo.majurel.fr",
+    "    - domain: kobo.domain.fr",
     "      policy: one_factor   # ou two_factor pour plus de sécurité",
     "      # Optionnel : restreindre à certains utilisateurs",
     "      # subject:",
@@ -695,7 +695,7 @@ page_break(doc)
 # ── 6. CONFIGURER LE DNS ──────────────────────────────────────────────────────
 heading1(doc, "6. Configurer le DNS", 9, "dns")
 
-body(doc, "Le sous-domaine kobo.majurel.fr doit pointer vers le serveur Unraid "
+body(doc, "Le sous-domaine kobo.domain.fr doit pointer vers le serveur Unraid "
      "(ou vers le reverse proxy qui reçoit les connexions entrantes).")
 
 heading2(doc, "Enregistrement DNS à créer")
@@ -703,15 +703,15 @@ two_col_table(doc,
     ["Type", "Nom", "Valeur", "TTL"],
     [
         ["A",     "kobo",  "<IP publique de la box / serveur>",  "3600"],
-        ["CNAME", "kobo",  "majurel.fr  (si IP déjà sur le domaine racine)",  "3600"],
+        ["CNAME", "kobo",  "domain.fr  (si IP déjà sur le domaine racine)",  "3600"],
     ],
     col_widths_cm=[2.0, 3.0, 9.5, 2.5]
 )
 
 heading2(doc, "Avec Cloudflare DNS (si le domaine est géré par Cloudflare)")
-body(doc, "Si majurel.fr est géré par Cloudflare, ajouter le sous-domaine dans le dashboard :")
+body(doc, "Si domain.fr est géré par Cloudflare, ajouter le sous-domaine dans le dashboard :")
 numbered(doc, "Se connecter sur dash.cloudflare.com")
-numbered(doc, "Sélectionner le domaine majurel.fr")
+numbered(doc, "Sélectionner le domaine domain.fr")
 numbered(doc, "DNS → Add record → Type A → Name: kobo → IPv4: <IP publique>")
 numbered(doc, "Proxy status : mettre en 'DNS only' (nuage gris) si Traefik gère le TLS, "
               "ou 'Proxied' (nuage orange) si Cloudflare doit aussi proxifier")
@@ -724,15 +724,15 @@ note_box(doc,
 heading2(doc, "Vérification DNS")
 code_block(doc, [
     "# Depuis n'importe quelle machine (pas le serveur lui-même)",
-    "nslookup kobo.majurel.fr",
+    "nslookup kobo.domain.fr",
     "",
     "# Doit retourner l'IP publique du serveur Unraid",
     "# Exemple :",
-    "# Name:    kobo.majurel.fr",
+    "# Name:    kobo.domain.fr",
     "# Address: 90.123.45.67",
     "",
     "# Tester la connectivité HTTPS",
-    "curl -I https://kobo.majurel.fr/health",
+    "curl -I https://kobo.domain.fr/health",
 ], "Vérification DNS et HTTPS")
 
 page_break(doc)
@@ -753,12 +753,12 @@ heading2(doc, "Se connecter à la bibliothèque")
 numbered(doc, "S'assurer que la Kobo est connectée au WiFi")
 numbered(doc, "Ouvrir le navigateur web de la Kobo")
 numbered(doc, "Saisir l'URL dans la barre d'adresse :")
-code_block(doc, ["https://kobo.majurel.fr"])
+code_block(doc, ["https://kobo.domain.fr"])
 numbered(doc, "La page Authelia s'affiche — s'identifier avec son compte")
 numbered(doc, "Après authentification, la bibliothèque s'affiche")
 
 heading2(doc, "Créer un favori (accès rapide)")
-numbered(doc, "Une fois sur https://kobo.majurel.fr, appuyer sur l'icône étoile dans la barre d'adresse")
+numbered(doc, "Une fois sur https://kobo.domain.fr, appuyer sur l'icône étoile dans la barre d'adresse")
 numbered(doc, "Le signet est sauvegardé et accessible depuis la page d'accueil du navigateur")
 
 heading2(doc, "Télécharger un livre sur la Kobo")
@@ -796,14 +796,14 @@ heading2(doc, "Checklist de déploiement")
 checks = [
     ("Container démarré", "docker compose ps  →  statut 'healthy'"),
     ("Base Calibre accessible", "curl http://localhost:8000/health  →  database: 'connected'"),
-    ("DNS résolu", "nslookup kobo.majurel.fr  →  retourne l'IP correcte"),
-    ("HTTPS valide", "curl -I https://kobo.majurel.fr  →  HTTP/2 200 ou 302"),
-    ("Authelia actif", "Naviguer vers https://kobo.majurel.fr  →  page de login Authelia"),
+    ("DNS résolu", "nslookup kobo.domain.fr  →  retourne l'IP correcte"),
+    ("HTTPS valide", "curl -I https://kobo.domain.fr  →  HTTP/2 200 ou 302"),
+    ("Authelia actif", "Naviguer vers https://kobo.domain.fr  →  page de login Authelia"),
     ("Après auth : page d'accueil", "La bibliothèque s'affiche avec le nombre de livres"),
     ("Navigation auteurs/genres", "Les listes sont correctement peuplées depuis Calibre"),
     ("Couvertures affichées", "Les couvertures apparaissent dans la grille de livres"),
     ("Téléchargement EPUB", "Le fichier se télécharge et s'ouvre dans la Kobo"),
-    ("Test depuis Kobo réelle", "Naviguer vers https://kobo.majurel.fr depuis le navigateur Kobo"),
+    ("Test depuis Kobo réelle", "Naviguer vers https://kobo.domain.fr depuis le navigateur Kobo"),
 ]
 
 for label, detail in checks:
@@ -828,7 +828,7 @@ numbered(doc, "Ouvrir Chrome ou Firefox")
 numbered(doc, "Ouvrir les Outils de développement (F12)")
 numbered(doc, "Activer la vue responsive (Ctrl+Shift+M dans Chrome)")
 numbered(doc, "Définir une résolution custom : 1072 × 1448 px (portrait)")
-numbered(doc, "Naviguer vers https://kobo.majurel.fr")
+numbered(doc, "Naviguer vers https://kobo.domain.fr")
 
 page_break(doc)
 
@@ -849,7 +849,7 @@ two_col_table(doc,
             "chmod +r sur metadata.db ; vérifier que le chemin inclut 'Calibre Library'"
         ],
         [
-            "404 sur kobo.majurel.fr",
+            "404 sur kobo.domain.fr",
             "DNS non propagé ou Traefik ne voit pas le container",
             "Attendre la propagation DNS ; vérifier 'docker network inspect docker_network'"
         ],
@@ -861,7 +861,7 @@ two_col_table(doc,
         [
             "Authelia redirige en boucle",
             "Le cookie de session n'est pas sauvegardé par le navigateur Kobo",
-            "Vérifier que le domaine Authelia et kobo.majurel.fr sont sur le même domaine parent"
+            "Vérifier que le domaine Authelia et kobo.domain.fr sont sur le même domaine parent"
         ],
         [
             "Couvertures absentes",
@@ -918,7 +918,7 @@ footer = section.footer
 fp = footer.paragraphs[0]
 fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
 fp.paragraph_format.space_before = Pt(4)
-r_footer = fp.add_run("Kobo Calibre Browser — Guide d'installation v1.0  ·  fabien.majurel@outlook.com")
+r_footer = fp.add_run("Kobo Calibre Browser — Guide d'installation v1.0  ·  ")
 r_footer.font.size = Pt(8)
 r_footer.font.color.rgb = RGBColor(0x88, 0x88, 0x88)
 r_footer.font.name = "Calibri"
