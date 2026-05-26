@@ -1,0 +1,46 @@
+services:
+  kobo-calibre:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: kobo-calibre-browser
+    restart: unless-stopped
+
+    # Pas de ports exposés directement — tout passe par Traefik
+    expose:
+      - "8000"
+
+    volumes:
+      - type: bind
+        source: ${CALIBRE_LIBRARY_PATH}
+        target: /calibre-library
+        read_only: true
+
+    environment:
+      - CALIBRE_LIBRARY_PATH=/calibre-library
+      - ITEMS_PER_PAGE=${ITEMS_PER_PAGE:-20}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    labels:
+      # --- Traefik ---
+      - "traefik.enable=true"
+      - "traefik.http.routers.kobo-calibre.rule=Host(`${KOBO_DOMAIN:-kobo.majurel.fr}`)"
+      - "traefik.http.routers.kobo-calibre.entrypoints=websecure"
+      - "traefik.http.routers.kobo-calibre.tls=true"
+      - "traefik.http.routers.kobo-calibre.tls.certresolver=${CERT_RESOLVER:-cloudflare}"
+      - "traefik.http.services.kobo-calibre.loadbalancer.server.port=8000"
+
+      # --- Authelia (middleware auth) ---
+      - "traefik.http.routers.kobo-calibre.middlewares=${AUTHELIA_MIDDLEWARE:-authelia@file}"
+
+networks:
+  default:
+    name: ${TRAEFIK_NETWORK:-docker_network}
+    external: true

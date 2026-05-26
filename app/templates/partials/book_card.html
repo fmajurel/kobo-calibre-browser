@@ -1,0 +1,24 @@
+{# Carte livre réutilisable — utilisée dans book_list, home, search #}
+<article class="book-card">
+  <a href="/books/{{ book.id }}">
+    <img
+      src="/covers/{{ book.id }}"
+      alt="Couverture de {{ book.title }}"
+      loading="lazy"
+      width="200"
+      height="280"
+    >
+    <div class="book-card-info">
+      <p class="book-title">{{ book.title }}</p>
+      {% if book.authors %}
+        <p class="book-author">{{ book.authors | map(attribute='name') | join(', ') }}</p>
+      {% endif %}
+      {% if book.series %}
+        <p class="book-series">{{ book.series.name }} #{{ book.series_index | int }}</p>
+      {% endif %}
+      {% if book.formats %}
+        <p class="book-formats">{{ book.formats | join(' · ') }}</p>
+      {% endif %}
+    </div>
+  </a>
+</article>

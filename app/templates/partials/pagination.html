@@ -1,0 +1,18 @@
+{# Contrôles de pagination. Attend : meta (PaginationMeta), base_url (str) #}
+{% if meta.total_pages > 1 %}
+<nav class="pagination" aria-label="Pagination">
+  {% if meta.has_prev %}
+    <a href="{{ base_url }}?page={{ meta.page - 1 }}" class="btn-page">← Précédent</a>
+  {% else %}
+    <span class="btn-page btn-disabled">← Précédent</span>
+  {% endif %}
+
+  <span class="page-info">{{ meta.page }} / {{ meta.total_pages }}</span>
+
+  {% if meta.has_next %}
+    <a href="{{ base_url }}?page={{ meta.page + 1 }}" class="btn-page">Suivant →</a>
+  {% else %}
+    <span class="btn-page btn-disabled">Suivant →</span>
+  {% endif %}
+</nav>
+{% endif %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+<article class="book-detail">
+
+  <div class="book-detail-cover">
+    {% if book.has_cover %}
+      <img src="/covers/{{ book.id }}" alt="Couverture de {{ book.title }}" width="240">
+    {% endif %}
+  </div>
+
+  <div class="book-detail-meta">
+    <h1>{{ book.title }}</h1>
+
+    {% if book.authors %}
+      <p class="meta-authors">
+        {% for author in book.authors %}
+          <a href="/authors/{{ author.id }}">{{ author.name }}</a>{% if not loop.last %}, {% endif %}
+        {% endfor %}
+      </p>
+    {% endif %}
+
+    {% if book.series %}
+      <p class="meta-series">
+        <a href="/series/{{ book.series.id }}">{{ book.series.name }}</a>
+        {% if book.series_index %} — Tome {{ book.series_index | int }}{% endif %}
+      </p>
+    {% endif %}
+
+    <dl class="meta-list">
+      {% if book.publisher %}
+        <dt>Éditeur</dt>
+        <dd>{{ book.publisher }}</dd>
+      {% endif %}
+      {% if book.pubdate %}
+        <dt>Publication</dt>
+        <dd>{{ book.pubdate.strftime('%Y') if book.pubdate else '—' }}</dd>
+      {% endif %}
+      {% if book.rating %}
+        <dt>Note</dt>
+        <dd>{{ '★' * (book.rating // 2) }}{{ '☆' * (5 - book.rating // 2) }} ({{ book.rating // 2 }}/5)</dd>
+      {% endif %}
+      {% if book.tags %}
+        <dt>Genres</dt>
+        <dd>
+          {% for tag in book.tags %}
+            <a href="/tags/{{ tag.id }}" class="tag-link">{{ tag.name }}</a>{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        </dd>
+      {% endif %}
+    </dl>
+  </div>
+
+  {% if book.comment %}
+  <div class="book-comment">
+    <h2>Résumé</h2>
+    <div class="comment-text">{{ book.comment | safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if book.formats %}
+  <div class="download-section">
+    <h2>Télécharger</h2>
+    <div class="download-buttons">
+      {% for fmt in book.formats %}
+      <a
+        href="/download/{{ book.id }}/{{ fmt.format | lower }}"
+        class="btn-download"
+      >
+        {{ fmt.format }}
+        <span class="file-size">{{ (fmt.size_bytes / 1024 / 1024) | round(1) }} Mo</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</article>
+{% endblock %}

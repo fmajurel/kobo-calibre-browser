@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Auteurs{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Auteurs</h1>
+<p class="result-count">{{ authors | length }} auteur{{ 's' if authors | length > 1 }}</p>
+
+{% if authors %}
+<ul class="list-index">
+  {% for author in authors %}
+  <li>
+    <a href="/authors/{{ author.id }}">
+      <span class="item-name">{{ author.name }}</span>
+      <span class="count">{{ author.book_count }} livre{{ 's' if author.book_count > 1 }}</span>
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="empty-state">Aucun auteur trouvé.</p>
+{% endif %}
+{% endblock %}

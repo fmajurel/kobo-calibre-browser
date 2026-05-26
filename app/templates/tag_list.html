@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Genres{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Genres</h1>
+<p class="result-count">{{ tags | length }} genre{{ 's' if tags | length > 1 }}</p>
+
+{% if tags %}
+<ul class="list-index">
+  {% for tag in tags %}
+  <li>
+    <a href="/tags/{{ tag.id }}">
+      <span class="item-name">{{ tag.name }}</span>
+      <span class="count">{{ tag.book_count }} livre{{ 's' if tag.book_count > 1 }}</span>
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="empty-state">Aucun genre trouvé.</p>
+{% endif %}
+{% endblock %}

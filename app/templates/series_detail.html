@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ series.name }}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">{{ series.name }}</h1>
+<p class="result-count">{{ books | length }} tome{{ 's' if books | length > 1 }}</p>
+
+{% if books %}
+<div class="book-grid">
+  {% for book in books %}
+    {% include "partials/book_card.html" %}
+  {% endfor %}
+</div>
+{% else %}
+<p class="empty-state">Aucun livre dans cette série.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Séries{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Séries</h1>
+<p class="result-count">{{ series_list | length }} série{{ 's' if series_list | length > 1 }}</p>
+
+{% if series_list %}
+<ul class="list-index">
+  {% for s in series_list %}
+  <li>
+    <a href="/series/{{ s.id }}">
+      <span class="item-name">{{ s.name }}</span>
+      <span class="count">{{ s.book_count }} tome{{ 's' if s.book_count > 1 }}</span>
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="empty-state">Aucune série trouvée.</p>
+{% endif %}
+{% endblock %}

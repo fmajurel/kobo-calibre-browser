@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Recherche{% if q %} : {{ q }}{% endif %}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Recherche</h1>
+
+<form class="search-form-main" action="/search" method="get">
+  <input
+    type="search"
+    name="q"
+    value="{{ q }}"
+    placeholder="Titre, auteur…"
+    autocomplete="off"
+    autocorrect="off"
+    autocapitalize="off"
+    autofocus
+  >
+  <button type="submit">Chercher</button>
+</form>
+
+{% if q %}
+  {% if page_obj and page_obj.items %}
+    <p class="result-count">
+      {{ page_obj.meta.total }} résultat{{ 's' if page_obj.meta.total > 1 }} pour « {{ q }} »
+    </p>
+
+    <div class="book-grid">
+      {% for book in page_obj.items %}
+        {% include "partials/book_card.html" %}
+      {% endfor %}
+    </div>
+
+    {% with meta=page_obj.meta %}
+      {% include "partials/pagination.html" %}
+    {% endwith %}
+
+  {% else %}
+    <p class="empty-state">Aucun résultat pour « {{ q }} ».</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

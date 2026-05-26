@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">{{ title }}</h1>
+
+{% if page_obj and page_obj.items %}
+  <p class="result-count">{{ page_obj.meta.total }} livre{{ 's' if page_obj.meta.total > 1 }}</p>
+
+  <div class="book-grid">
+    {% for book in page_obj.items %}
+      {% include "partials/book_card.html" %}
+    {% endfor %}
+  </div>
+
+  {% with meta=page_obj.meta %}
+    {% include "partials/pagination.html" %}
+  {% endwith %}
+
+{% else %}
+  <p class="empty-state">Aucun livre trouvé.</p>
+{% endif %}
+{% endblock %}

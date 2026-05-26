@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preview — Kobo Calibre Browser</title>
+  <link rel="stylesheet" href="app/static/css/eink.css">
+  <style>
+    /* Simulation de la résolution Kobo Clara 2E en mode portrait */
+    .device-frame {
+      width: 1072px;
+      max-width: 100%;
+      margin: 0 auto;
+      border: 4px solid #333;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .preview-nav {
+      background: #222;
+      color: #fff;
+      padding: 10px 16px;
+      font-family: monospace;
+      font-size: 13px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .preview-nav a { color: #7bf; }
+    .mock-cover {
+      width: 100%;
+      height: 220px;
+      background: linear-gradient(135deg, #ddd 0%, #bbb 100%);
+      border-bottom: 1px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+  </style>
+</head>
+<body>
+<div class="preview-nav">
+  <strong>PREVIEW Kobo Calibre Browser</strong>
+  <a href="#home">Accueil</a>
+  <a href="#book-list">Liste</a>
+  <a href="#book-detail">Fiche livre</a>
+  <a href="#authors">Auteurs</a>
+  <a href="#search">Recherche</a>
+  <a href="#error">Erreur</a>
+</div>
+
+<div class="device-frame">
+
+<!-- ══════════════════ PAGE : ACCUEIL ══════════════════ -->
+<section id="home">
+  <header class="site-header">
+    <div class="header-top">
+      <a href="#" class="site-title">📚 Bibliothèque</a>
+    </div>
+    <form class="search-form" action="#" method="get">
+      <input type="search" placeholder="Rechercher un livre ou auteur…" autocomplete="off">
+      <button type="submit">🔍</button>
+    </form>
+  </header>
+
+  <main class="main-content">
+    <section class="home-stats">
+      <p class="stats-label">247 livres dans la bibliothèque</p>
+    </section>
+
+    <nav class="home-nav">
+      <a href="#book-list">
+        <span class="nav-icon">📖</span>
+        <span>Tous les livres</span>
+      </a>
+      <a href="#authors">
+        <span class="nav-icon">✍️</span>
+        <span>Auteurs</span>
+      </a>
+      <a href="#authors">
+        <span class="nav-icon">🏷️</span>
+        <span>Genres</span>
+      </a>
+      <a href="#authors">
+        <span class="nav-icon">📚</span>
+        <span>Séries</span>
+      </a>
+    </nav>
+
+    <section class="recent-section">
+      <h2 class="section-title">Récemment ajoutés</h2>
+      <div class="book-grid">
+        <article class="book-card">
+          <a href="#book-detail">
+            <div class="mock-cover">📖</div>
+            <div class="book-card-info">
+              <p class="book-title">Le Nom du Vent</p>
+              <p class="book-author">Patrick Rothfuss</p>
+              <p class="book-series">Chronique du Tueur de Roi #1</p>
+              <p class="book-formats">EPUB · MOBI</p>
+            </div>
+          </a>
+        </article>
+        <article class="book-card">
+          <a href="#book-detail">
+            <div class="mock-cover">📗</div>
+            <div class="book-card-info">
+              <p class="book-title">Foundation</p>
+              <p class="book-author">Isaac Asimov</p>
+              <p class="book-series">Foundation #1</p>
+              <p class="book-formats">EPUB</p>
+            </div>
+          </a>
+        </article>
+        <article class="book-card">
+          <a href="#book-detail">
+            <div class="mock-cover">📘</div>
+            <div class="book-card-info">
+              <p class="book-title">Dune</p>
+              <p class="book-author">Frank Herbert</p>
+              <p class="book-formats">EPUB · PDF</p>
+            </div>
+          </a>
+        </article>
+        <article class="book-card">
+          <a href="#book-detail">
+            <div class="mock-cover">📕</div>
+            <div class="book-card-info">
+              <p class="book-title">Les Misérables</p>
+              <p class="book-author">Victor Hugo</p>
+              <p class="book-formats">EPUB · MOBI · PDF</p>
+            </div>
+          </a>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a href="#">Accueil</a><span>·</span>
+    <a href="#">Livres</a><span>·</span>
+    <a href="#">Auteurs</a><span>·</span>
+    <a href="#">Genres</a><span>·</span>
+    <a href="#">Séries</a>
+  </footer>
+</section>
+
+<hr style="border: 6px solid #333; margin: 0;">
+
+<!-- ══════════════════ PAGE : LISTE DE LIVRES ══════════════════ -->
+<section id="book-list">
+  <header class="site-header">
+    <div class="header-top">
+      <a href="#" class="site-title">📚 Bibliothèque</a>
+    </div>
+    <nav class="breadcrumb">
+      <a href="#">Accueil</a>
+      <span> › </span>
+      <span class="current">Tous les livres</span>
+    </nav>
+    <form class="search-form" action="#" method="get">
+      <input type="search" placeholder="Rechercher…" autocomplete="off">
+      <button type="submit">🔍</button>
+    </form>
+  </header>
+
+  <main class="main-content">
+    <h1 class="page-title">Tous les livres</h1>
+    <p class="result-count">247 livres</p>
+
+    <div class="book-grid">
+      {% for i in range(6) %}
+      <article class="book-card">
+        <a href="#book-detail">
+          <div class="mock-cover">📖</div>
+          <div class="book-card-info">
+            <p class="book-title">Titre du livre exemple numéro {{ loop.index }}</p>
+            <p class="book-author">Nom Auteur</p>
+            <p class="book-formats">EPUB</p>
+          </div>
+        </a>
+      </article>
+      {% endfor %}
+      <article class="book-card"><a href="#book-detail"><div class="mock-cover">📗</div><div class="book-card-info"><p class="book-title">Le Seigneur des Anneaux</p><p class="book-author">J.R.R. Tolkien</p><p class="book-series">LOTR #1</p><p class="book-formats">EPUB · MOBI</p></div></a></article>
+      <article class="book-card"><a href="#book-detail"><div class="mock-cover">📘</div><div class="book-card-info"><p class="book-title">Harry Potter à l'école des Sorciers</p><p class="book-author">J.K. Rowling</p><p class="book-series">Harry Potter #1</p><p class="book-formats">EPUB</p></div></a></article>
+      <article class="book-card"><a href="#book-detail"><div class="mock-cover">📕</div><div class="book-card-info"><p class="book-title">1984</p><p class="book-author">George Orwell</p><p class="book-formats">EPUB · PDF</p></div></a></article>
+      <article class="book-card"><a href="#book-detail"><div class="mock-cover">📙</div><div class="book-card-info"><p class="book-title">Le Petit Prince</p><p class="book-author">Antoine de Saint-Exupéry</p><p class="book-formats">EPUB · MOBI · PDF</p></div></a></article>
+    </div>
+
+    <nav class="pagination">
+      <span class="btn-page btn-disabled">← Précédent</span>
+      <span class="page-info">1 / 13</span>
+      <a href="#" class="btn-page">Suivant →</a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <a href="#">Accueil</a><span>·</span><a href="#">Livres</a><span>·</span><a href="#">Auteurs</a><span>·</span><a href="#">Genres</a><span>·</span><a href="#">Séries</a>
+  </footer>
+</section>
+
+<hr style="border: 6px solid #333; margin: 0;">
+
+<!-- ══════════════════ PAGE : FICHE LIVRE ══════════════════ -->
+<section id="book-detail">
+  <header class="site-header">
+    <div class="header-top">
+      <a href="#" class="site-title">📚 Bibliothèque</a>
+    </div>
+    <nav class="breadcrumb">
+      <a href="#">Accueil</a>
+      <span> › </span>
+      <a href="#">Livres</a>
+      <span> › </span>
+      <span class="current">Le Nom du Vent</span>
+    </nav>
+    <form class="search-form" action="#" method="get">
+      <input type="search" placeholder="Rechercher…" autocomplete="off">
+      <button type="submit">🔍</button>
+    </form>
+  </header>
+
+  <main class="main-content">
+    <article class="book-detail">
+
+      <div class="book-detail-cover">
+        <div style="width:240px; height:340px; background: linear-gradient(135deg, #ddd 0%, #aaa 100%); border: 2px solid #000; margin: 0 auto; display:flex; align-items:center; justify-content:center; font-size:4rem;">📖</div>
+      </div>
+
+      <div class="book-detail-meta">
+        <h1>Le Nom du Vent</h1>
+        <p class="meta-authors"><a href="#">Patrick Rothfuss</a></p>
+        <p class="meta-series"><a href="#">Chronique du Tueur de Roi</a> — Tome 1</p>
+
+        <dl class="meta-list">
+          <dt>Éditeur</dt><dd>DAW Books</dd>
+          <dt>Publication</dt><dd>2007</dd>
+          <dt>Note</dt><dd>★★★★☆ (4/5)</dd>
+          <dt>Genres</dt>
+          <dd>
+            <a href="#" class="tag-link">Fantasy</a>,
+            <a href="#" class="tag-link">Épique</a>,
+            <a href="#" class="tag-link">Roman</a>
+          </dd>
+        </dl>
+      </div>
+
+      <div class="book-comment">
+        <h2>Résumé</h2>
+        <div class="comment-text">
+          <p>Kvothe — dont le nom est connu dans tout le monde civilisé et au-delà — raconte sa propre histoire à un Chroniqueur qui a voyagé pendant des années pour le retrouver.</p>
+          <p>C'est l'histoire d'un garçon exceptionnel qui devient un étudiant légendaire, un musicien incomparable, un magicien, un voleur, un faussaire et bien d'autres choses encore.</p>
+        </div>
+      </div>
+
+      <div class="download-section">
+        <h2>Télécharger</h2>
+        <div class="download-buttons">
+          <a href="#" class="btn-download">
+            EPUB
+            <span class="file-size">1.2 Mo</span>
+          </a>
+          <a href="#" class="btn-download">
+            MOBI
+            <span class="file-size">1.8 Mo</span>
+          </a>
+        </div>
+      </div>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <a href="#">Accueil</a><span>·</span><a href="#">Livres</a><span>·</span><a href="#">Auteurs</a><span>·</span><a href="#">Genres</a><span>·</span><a href="#">Séries</a>
+  </footer>
+</section>
+
+<hr style="border: 6px solid #333; margin: 0;">
+
+<!-- ══════════════════ PAGE : AUTEURS ══════════════════ -->
+<section id="authors">
+  <header class="site-header">
+    <div class="header-top"><a href="#" class="site-title">📚 Bibliothèque</a></div>
+    <nav class="breadcrumb"><a href="#">Accueil</a><span> › </span><span class="current">Auteurs</span></nav>
+    <form class="search-form" action="#" method="get">
+      <input type="search" placeholder="Rechercher…" autocomplete="off">
+      <button type="submit">🔍</button>
+    </form>
+  </header>
+
+  <main class="main-content">
+    <h1 class="page-title">Auteurs</h1>
+    <p class="result-count">42 auteurs</p>
+
+    <ul class="list-index">
+      <li><a href="#book-list"><span class="item-name">Asimov, Isaac</span><span class="count">12 livres</span></a></li>
+      <li><a href="#book-list"><span class="item-name">Herbert, Frank</span><span class="count">6 livres</span></a></li>
+      <li><a href="#book-list"><span class="item-name">Hugo, Victor</span><span class="count">4 livres</span></a></li>
+      <li><a href="#book-list"><span class="item-name">Le Guin, Ursula K.</span><span class="count">8 livres</span></a></li>
+      <li><a href="#book-list"><span class="item-name">Orwell, George</span><span class="count">3 livres</span></a></li>
+      <li><a href="#book-list"><span class="item-name">Rothfuss, Patrick</span><span class="count">2 livres</span></a></li>
+      <li><a href="#book-list"><span class="item-name">Saint-Exupéry, Antoine de</span><span class="count">1 livre</span></a></li>
+      <li><a href="#book-list"><span class="item-name">Tolkien, J.R.R.</span><span class="count">5 livres</span></a></li>
+    </ul>
+  </main>
+
+  <footer class="site-footer">
+    <a href="#">Accueil</a><span>·</span><a href="#">Livres</a><span>·</span><a href="#">Auteurs</a><span>·</span><a href="#">Genres</a><span>·</span><a href="#">Séries</a>
+  </footer>
+</section>
+
+<hr style="border: 6px solid #333; margin: 0;">
+
+<!-- ══════════════════ PAGE : RECHERCHE ══════════════════ -->
+<section id="search">
+  <header class="site-header">
+    <div class="header-top"><a href="#" class="site-title">📚 Bibliothèque</a></div>
+    <nav class="breadcrumb"><a href="#">Accueil</a><span> › </span><span class="current">Recherche</span></nav>
+    <form class="search-form" action="#" method="get">
+      <input type="search" placeholder="Rechercher…" value="dune" autocomplete="off">
+      <button type="submit">🔍</button>
+    </form>
+  </header>
+
+  <main class="main-content">
+    <h1 class="page-title">Recherche</h1>
+    <form class="search-form-main" action="#" method="get">
+      <input type="search" name="q" value="dune" placeholder="Titre, auteur…" autocomplete="off">
+      <button type="submit">Chercher</button>
+    </form>
+
+    <p class="result-count">3 résultats pour « dune »</p>
+
+    <div class="book-grid">
+      <article class="book-card"><a href="#book-detail"><div class="mock-cover">📕</div><div class="book-card-info"><p class="book-title">Dune</p><p class="book-author">Frank Herbert</p><p class="book-formats">EPUB · MOBI</p></div></a></article>
+      <article class="book-card"><a href="#book-detail"><div class="mock-cover">📗</div><div class="book-card-info"><p class="book-title">Le Messie de Dune</p><p class="book-author">Frank Herbert</p><p class="book-series">Dune #2</p><p class="book-formats">EPUB</p></div></a></article>
+      <article class="book-card"><a href="#book-detail"><div class="mock-cover">📘</div><div class="book-card-info"><p class="book-title">Les Enfants de Dune</p><p class="book-author">Frank Herbert</p><p class="book-series">Dune #3</p><p class="book-formats">EPUB · PDF</p></div></a></article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <a href="#">Accueil</a><span>·</span><a href="#">Livres</a><span>·</span><a href="#">Auteurs</a><span>·</span><a href="#">Genres</a><span>·</span><a href="#">Séries</a>
+  </footer>
+</section>
+
+<hr style="border: 6px solid #333; margin: 0;">
+
+<!-- ══════════════════ PAGE : ERREUR ══════════════════ -->
+<section id="error">
+  <header class="site-header">
+    <div class="header-top"><a href="#" class="site-title">📚 Bibliothèque</a></div>
+    <form class="search-form" action="#" method="get">
+      <input type="search" placeholder="Rechercher…" autocomplete="off">
+      <button type="submit">🔍</button>
+    </form>
+  </header>
+
+  <main class="main-content">
+    <div class="error-page">
+      <p class="error-code">404</p>
+      <p class="error-message">Page introuvable</p>
+      <a href="#home" class="btn-home">Retour à l'accueil</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <a href="#">Accueil</a><span>·</span><a href="#">Livres</a><span>·</span><a href="#">Auteurs</a><span>·</span><a href="#">Genres</a><span>·</span><a href="#">Séries</a>
+  </footer>
+</section>
+
+</div><!-- .device-frame -->
+</body>
+</html>
