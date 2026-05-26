@@ -223,7 +223,8 @@ def get_book_file_path(conn: sqlite3.Connection, book_id: int, fmt: str) -> Path
     library = settings.calibre_library_path
     base = library / book_row["path"] / data_row["name"]
     if fmt_upper == "KEPUB":
-        file_path = base.with_suffix(".kepub.epub")
+        # Calibre stocke les fichiers KEPUB avec l'extension simple .kepub
+        file_path = base.parent / (base.name + ".kepub")
     else:
         file_path = base.with_suffix(f".{fmt_upper.lower()}")
 

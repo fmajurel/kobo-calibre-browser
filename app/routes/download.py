@@ -47,8 +47,8 @@ def download(book_id: int, fmt: str):
 
     # Nom de fichier propre pour le téléchargement
     safe_title = "".join(c for c in book_row["title"] if c.isalnum() or c in " -_")[:60]
-    # Les fichiers KEPUB ont une double extension (.kepub.epub) reconnue par la Kobo
-    filename = f"{safe_title}.kepub.epub" if fmt_lower == "kepub" else f"{safe_title}.{fmt_lower}"
+    # Les fichiers KEPUB ont l'extension .kepub (format natif Kobo)
+    filename = f"{safe_title}.kepub" if fmt_lower == "kepub" else f"{safe_title}.{fmt_lower}"
 
     return FileResponse(
         file_path,
