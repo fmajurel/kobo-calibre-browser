@@ -54,6 +54,7 @@
       <a
         href="/download/{{ book.id }}/{{ fmt.format | lower }}"
         class="btn-download"
+        hx-boost="false"
       >
         {{ fmt.format }}
         <span class="file-size">{{ (fmt.size_bytes / 1024 / 1024) | round(1) }} Mo</span>
