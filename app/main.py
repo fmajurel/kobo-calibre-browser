@@ -80,9 +80,9 @@ async def login_submit(
 ):
     if settings.app_password and password == settings.app_password:
         request.session["authenticated"] = True
-        # Redirection vers l'URL d'origine (ou accueil par défaut)
+        # Utiliser location.replace() pour ne pas ajouter /login à l'historique
         safe_next = next if next.startswith("/") else "/"
-        return RedirectResponse(safe_next, status_code=302)
+        return HTMLResponse(f'<script>location.replace("{safe_next}")</script>')
     return templates.TemplateResponse(
         "login.html",
         {"request": request, "next": next, "error": "Mot de passe incorrect"},
