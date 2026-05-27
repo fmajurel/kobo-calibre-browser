@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="htmx-config" content='{"historyEnabled":false}'>
-  <title>{% block title %}Bibliothèque{% endblock %} — Calibre</title>
+  <title>{% block title %}Bibliotheque{% endblock %} -- Calibre</title>
   <link rel="stylesheet" href="/static/css/eink.css">
   <script src="/static/js/htmx.min.js" defer></script>
 </head>
@@ -12,8 +12,8 @@
 
   <header class="site-header">
     <div class="header-top">
-      <a href="/" class="site-title">📚 Bibliothèque</a>
-      <a href="javascript:window.close()" class="btn-close-browser" title="Fermer le navigateur">✕</a>
+      <a href="/" class="site-title">Bibliotheque</a>
+      <a href="javascript:window.close()" class="btn-close-browser" title="Fermer le navigateur">X Fermer</a>
     </div>
 
     {# Breadcrumb #}
@@ -21,7 +21,7 @@
     <nav class="breadcrumb" aria-label="Navigation">
       <a href="/">Accueil</a>
       {% for label, url in breadcrumbs %}
-        <span aria-hidden="true"> › </span>
+        <span aria-hidden="true"> &rsaquo; </span>
         {% if loop.last %}
           <span class="current">{{ label }}</span>
         {% else %}
@@ -36,13 +36,13 @@
       <input
         type="search"
         name="q"
-        placeholder="Rechercher un livre ou auteur…"
+        placeholder="Rechercher un livre ou auteur..."
         value="{{ q | default('') }}"
         autocomplete="off"
         autocorrect="off"
         autocapitalize="off"
       >
-      <button type="submit" aria-label="Chercher">🔍</button>
+      <button type="submit" aria-label="Chercher">Chercher</button>
     </form>
   </header>
 
@@ -52,14 +52,14 @@
 
   <footer class="site-footer">
     <a href="/">Accueil</a>
-    <span>·</span>
+    <span>&middot;</span>
     <a href="/books">Livres</a>
-    <span>·</span>
+    <span>&middot;</span>
     <a href="/authors">Auteurs</a>
-    <span>·</span>
+    <span>&middot;</span>
     <a href="/tags">Genres</a>
-    <span>·</span>
-    <a href="/series">Séries</a>
+    <span>&middot;</span>
+    <a href="/series">Series</a>
   </footer>
 
 </body>
