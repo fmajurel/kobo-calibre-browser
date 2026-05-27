@@ -1,1 +1,41 @@
-C:\Users\fabie
+{% extends "base.html" %}
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<section class="home-stats">
+  <p class="stats-label">{{ total_books }} livre{{ 's' if total_books > 1 }} dans la bibliotheque</p>
+</section>
+
+<nav class="home-nav" aria-label="Navigation principale">
+  <a href="/books">
+    <span>Tous les livres</span>
+  </a>
+  <a href="/authors">
+    <span>Auteurs</span>
+  </a>
+  <a href="/tags">
+    <span>Genres</span>
+  </a>
+  <a href="/series">
+    <span>Series</span>
+  </a>
+</nav>
+
+{% if recent_books %}
+<section class="recent-section">
+  <h2 class="section-title">Recemment ajoutes</h2>
+  <div class="book-grid">
+    {% for b in recent_books %}
+    <article class="book-card">
+      <a href="/books/{{ b.id }}">
+        <img src="/covers/{{ b.id }}" alt="Couverture" loading="lazy" width="200" height="280">
+        <div class="book-card-info">
+          <p class="book-title">{{ b.title }}</p>
+        </div>
+      </a>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}
