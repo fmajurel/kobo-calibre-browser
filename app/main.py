@@ -66,6 +66,10 @@ app.include_router(download.router, prefix="/download")
 
 @app.get("/login", response_class=HTMLResponse)
 def login_form(request: Request, next: str = "/", error: str = ""):
+    # Si déjà authentifié, rediriger sans ajouter à l'historique
+    if request.session.get("authenticated"):
+        safe_next = next if next.startswith("/") else "/"
+        return HTMLResponse(f'<script>location.replace("{safe_next}")</script>')
     return templates.TemplateResponse(
         "login.html",
         {"request": request, "next": next, "error": error},
