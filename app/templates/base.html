@@ -6,7 +6,12 @@
   <meta name="htmx-config" content='{"historyEnabled":false}'>
   <title>{% block title %}Bibliotheque{% endblock %} -- Calibre</title>
   <link rel="stylesheet" href="/static/css/eink.css">
-  <script src="/static/js/htmx.min.js" defer></script>
+  <script src="/static/js/htmx.min.js"></script>
+  <script>
+    document.addEventListener('htmx:beforeHistoryUpdate', function(e) {
+      e.preventDefault();
+    });
+  </script>
 </head>
 <body hx-boost="true">
 
