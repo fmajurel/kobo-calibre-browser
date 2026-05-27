@@ -7,19 +7,13 @@
   <title>{% block title %}Bibliotheque{% endblock %} -- Calibre</title>
   <link rel="stylesheet" href="/static/css/eink.css">
   <script src="/static/js/htmx.min.js" defer></script>
-  <script>
-    function closeKoboBrowser() {
-      try { window.open('', '_self', ''); window.close(); } catch(e) {}
-      setTimeout(function() { if (!window.closed) { history.go(-history.length); } }, 100);
-    }
-  </script>
 </head>
 <body hx-boost="true">
 
   <header class="site-header">
     <div class="header-top">
       <a href="/" class="site-title">Bibliotheque</a>
-      <button class="btn-close-browser" onclick="closeKoboBrowser()" title="Fermer le navigateur">X Fermer</button>
+      <button class="btn-close-browser" onclick="history.back()" title="Fermer le navigateur">X Fermer</button>
     </div>
 
     {# Breadcrumb #}
