@@ -11,17 +11,11 @@
     document.addEventListener('htmx:beforeHistoryUpdate', function(e) {
       e.preventDefault();
     });
-    function fermerApp() {
-      location.replace('about:blank');
-    }
   </script>
 </head>
 <body hx-boost="true">
   <header class="site-header">
-    <div class="header-top">
-      <a href="/" class="site-title">Bibliotheque</a>
-      <button class="btn-close-browser" onclick="fermerApp()" title="Fermer le navigateur">X Fermer</button>
-    </div>
+    <a href="/" class="site-title">Bibliotheque</a>
     {% if breadcrumbs %}
     <nav class="breadcrumb" aria-label="Navigation">
       <a href="/">Accueil</a>
