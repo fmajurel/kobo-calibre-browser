@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connexion — Bibliothèque</title>
+  <title>Connexion -- Bibliotheque</title>
   <link rel="stylesheet" href="/static/css/eink.css">
   <style>
     .login-wrap {
@@ -56,11 +56,17 @@
       text-align: center;
       background: #f0f0f0;
     }
+    .login-version {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #999;
+      margin-top: 48px;
+    }
   </style>
 </head>
 <body>
   <div class="login-wrap">
-    <h1 class="login-title">📚 Bibliothèque</h1>
+    <h1 class="login-title">Bibliotheque</h1>
 
     {% if error %}
     <p class="login-error">{{ error }}</p>
@@ -77,6 +83,8 @@
       >
       <button type="submit">Connexion</button>
     </form>
+
+    <p class="login-version">v1.1</p>
   </div>
 </body>
 </html>
