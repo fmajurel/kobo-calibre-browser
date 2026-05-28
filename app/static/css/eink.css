@@ -200,13 +200,15 @@ h2 { font-size: 1.2rem; line-height: 1.3; margin: 16px 0 8px; }
 
 /* === GRILLE DE LIVRES ===================================== */
 .book-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 14px;
   margin-bottom: 16px;
 }
 
 .book-card {
+  flex: 0 0 calc(50% - 7px);
+  min-width: 0;
   border: 2px solid #000;
   overflow: hidden;
 }
@@ -225,7 +227,8 @@ h2 { font-size: 1.2rem; line-height: 1.3; margin: 16px 0 8px; }
 
 .book-card img {
   width: 100%;
-  height: 480px;
+  height: calc(50vh - 120px);
+  min-height: 160px;
   object-fit: contain;
   border-bottom: 1px solid #000;
   background: #eee;
