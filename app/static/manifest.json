@@ -1,0 +1,19 @@
+{
+  "name": "Bibliothèque Calibre",
+  "short_name": "Bibliothèque",
+  "description": "Navigateur de bibliothèque Calibre",
+  "start_url": "/app",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#1e293b",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/static/icon-192.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

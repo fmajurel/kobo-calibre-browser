@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1e293b">
+  <title>Bibliothèque</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="stylesheet" href="/static/app.css">
+  <!-- Alpine doit être chargé APRÈS app.js qui enregistre le composant -->
+  <script src="/static/app.js"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+</head>
+<body x-data="libraryApp()" x-init="init()">
+
+  <!-- ═══════════════════════════════════════════════════════ Header ══ -->
+  <header class="app-header">
+    <button class="btn-back"
+            x-show="view === 'detail'"
+            x-cloak
+            @click="back()"
+            aria-label="Retour">←</button>
+
+    <span class="app-title"
+          x-show="view !== 'detail'"
+          x-cloak>📚 Bibliothèque</span>
+    <span class="app-title"
+          x-show="view === 'detail'"
+          x-cloak
+          x-text="selectedBook ? selectedBook.title : ''"></span>
+  </header>
+
+  <!-- ═══════════════════════════════════════════ Barre de recherche ══ -->
+  <div class="search-bar" x-show="view !== 'detail'" x-cloak>
+    <input class="search-input"
+           type="search"
+           placeholder="Titre ou auteur…"
+           x-model="searchQuery"
+           @keyup.enter="doSearch()"
+           @search="searchQuery === '' && clearSearch()"
+           autocomplete="off"
+           spellcheck="false">
+    <button class="btn-search" @click="doSearch()" aria-label="Rechercher">🔍</button>
+    <button class="btn-clear"
+            x-show="searchActive"
+            @click="clearSearch()"
+            aria-label="Effacer">✕</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ Barre de tri ══ -->
+  <div class="sort-bar" x-show="view !== 'detail'" x-cloak>
+    <button class="sort-btn"
+            :class="{ active: sort === 'timestamp' }"
+            @click="applySort('timestamp')">
+      Date <span x-text="orderIcon('timestamp')"></span>
+    </button>
+    <button class="sort-btn"
+            :class="{ active: sort === 'title' }"
+            @click="applySort('title')">
+      Titre <span x-text="orderIcon('title')"></span>
+    </button>
+    <button class="sort-btn"
+            :class="{ active: sort === 'author' }"
+            @click="applySort('author')">
+      Auteur <span x-text="orderIcon('author')"></span>
+    </button>
+    <span class="result-count"
+          x-show="meta.total > 0"
+          x-text="`${meta.total} livre${meta.total > 1 ? 's' : ''}`"></span>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════ Spinner ══ -->
+  <div class="spinner" x-show="loading" x-cloak>
+    <div class="spin"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ Grille livres ══ -->
+  <main class="book-grid" x-show="view !== 'detail' && !loading" x-cloak>
+
+    <template x-for="book in books" :key="book.id">
+      <article class="book-card" @click="openBook(book.id)">
+
+        <div class="card-cover">
+          <img x-show="book.has_cover"
+               :src="`/covers/${book.id}`"
+               :alt="book.title"
+               loading="lazy">
+          <div class="no-cover" x-show="!book.has_cover">📖</div>
+        </div>
+
+        <div class="card-info">
+          <p class="card-title" x-text="book.title"></p>
+          <p class="card-author" x-text="authorNames(book.authors)"></p>
+          <p class="card-series"
+             x-show="book.series"
+             x-text="book.series ? book.series.name + (book.series_index ? ' #' + book.series_index : '') : ''">
+          </p>
+          <div class="card-formats">
+            <template x-for="fmt in book.formats" :key="fmt">
+              <span class="fmt-badge"
+                    :style="`background: ${fmtColor(fmt)}`"
+                    x-text="fmt"></span>
+            </template>
+          </div>
+        </div>
+
+      </article>
+    </template>
+
+    <!-- État vide -->
+    <div class="empty-state" x-show="books.length === 0 && !loading">
+      <p x-text="searchActive ? 'Aucun résultat pour votre recherche.' : 'Bibliothèque vide.'"></p>
+    </div>
+
+    <!-- Charger plus -->
+    <div class="load-more" x-show="hasMore">
+      <button @click="loadMore()" :disabled="loadingMore">
+        <span x-show="!loadingMore">Charger plus</span>
+        <span x-show="loadingMore">Chargement…</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- ══════════════════════════════════════════════ Fiche détaillée ══ -->
+  <div class="book-detail" x-show="view === 'detail' && !loading" x-cloak>
+
+    <div class="detail-cover" x-show="selectedBook && selectedBook.has_cover">
+      <img :src="selectedBook ? `/covers/${selectedBook.id}` : ''"
+           :alt="selectedBook ? selectedBook.title : ''">
+    </div>
+
+    <div class="detail-body">
+
+      <h1 class="detail-title" x-text="selectedBook ? selectedBook.title : ''"></h1>
+      <p class="detail-authors"
+         x-text="selectedBook ? authorNames(selectedBook.authors) : ''"></p>
+      <p class="detail-series"
+         x-show="selectedBook && selectedBook.series"
+         x-text="selectedBook && selectedBook.series
+           ? selectedBook.series.name + (selectedBook.series_index ? ' — Tome ' + selectedBook.series_index : '')
+           : ''">
+      </p>
+
+      <!-- Métadonnées -->
+      <dl class="detail-meta" x-show="selectedBook">
+        <div x-show="selectedBook && selectedBook.publisher">
+          <dt>Éditeur</dt>
+          <dd x-text="selectedBook ? selectedBook.publisher : ''"></dd>
+        </div>
+        <div x-show="selectedBook && selectedBook.pubdate">
+          <dt>Publication</dt>
+          <dd x-text="selectedBook && selectedBook.pubdate ? pubYear(selectedBook.pubdate) : ''"></dd>
+        </div>
+        <div x-show="selectedBook && selectedBook.rating">
+          <dt>Note</dt>
+          <dd x-text="selectedBook ? stars(selectedBook.rating) : ''"></dd>
+        </div>
+        <div x-show="selectedBook && selectedBook.tags && selectedBook.tags.length > 0">
+          <dt>Genres</dt>
+          <dd x-text="selectedBook && selectedBook.tags ? selectedBook.tags.map(t => t.name).join(', ') : ''"></dd>
+        </div>
+      </dl>
+
+      <!-- Téléchargements -->
+      <div class="download-section" x-show="selectedBook && selectedBook.formats && selectedBook.formats.length > 0">
+        <h2>Télécharger</h2>
+        <template x-for="fmt in (selectedBook ? selectedBook.formats : [])" :key="fmt.format">
+          <a :href="`/download/${selectedBook.id}/${fmt.format.toLowerCase()}`"
+             class="btn-download"
+             :style="`background: ${fmtColor(fmt.format)}`">
+            <span x-text="fmt.format"></span>
+            <span class="fmt-size" x-text="formatSize(fmt.size_bytes)"></span>
+          </a>
+        </template>
+      </div>
+
+      <!-- Résumé -->
+      <div class="detail-comment" x-show="selectedBook && selectedBook.comment">
+        <h2>Résumé</h2>
+        <div x-html="selectedBook ? selectedBook.comment : ''"></div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

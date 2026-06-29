@@ -1,14 +1,14 @@
 from urllib.parse import quote
 
 from fastapi import FastAPI, Form, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
 from config import settings
 from database import test_connection
-from routes import authors, books, covers, download, home, search, series, tags
+from routes import api, authors, books, covers, download, home, search, series, tags
 
 app = FastAPI(
     title="Kobo Calibre Browser",
@@ -37,6 +37,9 @@ async def require_auth(request: Request, call_next):
         return await call_next(request)
     # Vérifier la session
     if not request.session.get("authenticated"):
+        # Les appels API reçoivent un 401 JSON (pas une redirection HTML)
+        if path.startswith("/api/"):
+            return JSONResponse({"detail": "Non authentifié"}, status_code=401)
         next_url = quote(str(request.url), safe="")
         return RedirectResponse(f"/login?next={next_url}", status_code=302)
     return await call_next(request)
@@ -60,6 +63,19 @@ app.include_router(series.router, prefix="/series")
 app.include_router(search.router, prefix="/search")
 app.include_router(covers.router, prefix="/covers")
 app.include_router(download.router, prefix="/download")
+app.include_router(api.router)
+
+
+# ── PWA ───────────────────────────────────────────────────────────────────────
+
+@app.get("/app", response_class=HTMLResponse)
+def pwa_shell(request: Request):
+    return templates.TemplateResponse("app.html", {"request": request})
+
+
+@app.get("/sw.js", include_in_schema=False)
+def service_worker():
+    return FileResponse("static/sw.js", media_type="application/javascript")
 
 
 # ── Routes de login / logout ─────────────────────────────────────────────────

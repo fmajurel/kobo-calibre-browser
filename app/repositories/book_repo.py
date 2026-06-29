@@ -169,20 +169,43 @@ def _rows_to_list_items(
 # ─── Requêtes principales ─────────────────────────────────────────────────────
 
 def get_books_paginated(
-    conn: sqlite3.Connection, page: int = 1, per_page: int = 20
+    conn: sqlite3.Connection,
+    page: int = 1,
+    per_page: int = 20,
+    sort: str = "timestamp",
+    order: str = "desc",
 ) -> Page[BookListItem]:
     offset = (page - 1) * per_page
+    dir_ = "ASC" if order == "asc" else "DESC"
     total = conn.execute("SELECT COUNT(*) FROM books").fetchone()[0]
 
-    rows = conn.execute(
-        """
-        SELECT id, title, sort, has_cover, series_index
-        FROM books
-        ORDER BY timestamp DESC
-        LIMIT ? OFFSET ?
-        """,
-        (per_page, offset),
-    ).fetchall()
+    if sort == "author":
+        rows = conn.execute(
+            f"""
+            SELECT b.id, b.title, b.sort, b.has_cover, b.series_index
+            FROM books b
+            LEFT JOIN (
+                SELECT bal.book, MIN(a.sort) AS author_sort
+                FROM books_authors_link bal
+                JOIN authors a ON a.id = bal.author
+                GROUP BY bal.book
+            ) aa ON aa.book = b.id
+            ORDER BY COALESCE(aa.author_sort, '') {dir_}, b.sort ASC
+            LIMIT ? OFFSET ?
+            """,
+            (per_page, offset),
+        ).fetchall()
+    else:
+        col = "sort" if sort == "title" else "timestamp"
+        rows = conn.execute(
+            f"""
+            SELECT id, title, sort, has_cover, series_index
+            FROM books
+            ORDER BY {col} {dir_}
+            LIMIT ? OFFSET ?
+            """,
+            (per_page, offset),
+        ).fetchall()
 
     return Page(
         items=_rows_to_list_items(conn, rows),
@@ -328,10 +351,13 @@ def search_books(
     query: str,
     page: int = 1,
     per_page: int = 20,
+    sort: str = "title",
+    order: str = "asc",
 ) -> Page[BookListItem]:
     """Recherche LIKE sur titre et auteur."""
     like = f"%{query}%"
     offset = (page - 1) * per_page
+    dir_ = "ASC" if order == "asc" else "DESC"
 
     total = conn.execute(
         """
@@ -344,18 +370,51 @@ def search_books(
         (like, like),
     ).fetchone()[0]
 
-    rows = conn.execute(
-        """
-        SELECT DISTINCT b.id, b.title, b.sort, b.has_cover, b.series_index
-        FROM books b
-        LEFT JOIN books_authors_link bal ON bal.book = b.id
-        LEFT JOIN authors a ON a.id = bal.author
-        WHERE b.title LIKE ? OR a.name LIKE ?
-        ORDER BY b.sort
-        LIMIT ? OFFSET ?
-        """,
-        (like, like, per_page, offset),
-    ).fetchall()
+    if sort == "author":
+        rows = conn.execute(
+            f"""
+            SELECT DISTINCT b.id, b.title, b.sort, b.has_cover, b.series_index
+            FROM books b
+            LEFT JOIN books_authors_link bal ON bal.book = b.id
+            LEFT JOIN authors a ON a.id = bal.author
+            LEFT JOIN (
+                SELECT bal2.book, MIN(a2.sort) AS author_sort
+                FROM books_authors_link bal2
+                JOIN authors a2 ON a2.id = bal2.author
+                GROUP BY bal2.book
+            ) aa ON aa.book = b.id
+            WHERE b.title LIKE ? OR a.name LIKE ?
+            ORDER BY COALESCE(aa.author_sort, '') {dir_}, b.sort ASC
+            LIMIT ? OFFSET ?
+            """,
+            (like, like, per_page, offset),
+        ).fetchall()
+    elif sort == "timestamp":
+        rows = conn.execute(
+            f"""
+            SELECT DISTINCT b.id, b.title, b.sort, b.has_cover, b.series_index
+            FROM books b
+            LEFT JOIN books_authors_link bal ON bal.book = b.id
+            LEFT JOIN authors a ON a.id = bal.author
+            WHERE b.title LIKE ? OR a.name LIKE ?
+            ORDER BY b.timestamp {dir_}
+            LIMIT ? OFFSET ?
+            """,
+            (like, like, per_page, offset),
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            f"""
+            SELECT DISTINCT b.id, b.title, b.sort, b.has_cover, b.series_index
+            FROM books b
+            LEFT JOIN books_authors_link bal ON bal.book = b.id
+            LEFT JOIN authors a ON a.id = bal.author
+            WHERE b.title LIKE ? OR a.name LIKE ?
+            ORDER BY b.sort {dir_}
+            LIMIT ? OFFSET ?
+            """,
+            (like, like, per_page, offset),
+        ).fetchall()
 
     return Page(
         items=_rows_to_list_items(conn, rows),
